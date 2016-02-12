@@ -10,7 +10,7 @@ Brendan Carrick Lyons
 """
 import numpy as np
 import fio_py
-import xray
+import xarray as xr
 #from C1field import C1field
 
 # constants
@@ -191,34 +191,34 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
     # Primitive scalar fields
     if name_lc in total_pressure:
 
-        field = xray.DataArray(data,[('R',R),('Z',Z)])
+        field = xr.DataArray(data,[('R',R),('Z',Z)])
         field.attrs['type']    = fio_py.FIO_TOTAL_PRESSURE
         field.name = total_pressure[0]
     
     elif name_lc in ion_pressure:
 
-        field = xray.DataArray(data,[('R',R),('Z',Z)])
+        field = xr.DataArray(data,[('R',R),('Z',Z)])
         field.attrs['species'] = fio_py.FIO_MAIN_ION
         field.attrs['type']    = fio_py.FIO_PRESSURE
         field.name = ion_pressure[0]
 
     elif name_lc in ion_density:
 
-        field = xray.DataArray(data,[('R',R),('Z',Z)])
+        field = xr.DataArray(data,[('R',R),('Z',Z)])
         field.attrs['species'] = fio_py.FIO_MAIN_ION
         field.attrs['type']    = fio_py.FIO_DENSITY
         field.name = ion_density[0]
 
     elif name_lc in electron_pressure:
 
-        field = xray.DataArray(data,[('R',R),('Z',Z)])
+        field = xr.DataArray(data,[('R',R),('Z',Z)])
         field.attrs['species'] = fio_py.FIO_ELECTRON
         field.attrs['type']    = fio_py.FIO_PRESSURE
         field.name = electron_pressure[0]
         
     elif name_lc in electron_density:
 
-        field = xray.DataArray(data,[('R',R),('Z',Z)])
+        field = xr.DataArray(data,[('R',R),('Z',Z)])
         field.attrs['species'] = fio_py.FIO_ELECTRON
         field.attrs['type']    = fio_py.FIO_DENSITY
         field.name = electron_density[0]
@@ -228,7 +228,7 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
 
         data = np.array([data,data,data]) 
         
-        field = xray.DataArray(data,[('component',comps),('R',R),('Z',Z)])    
+        field = xr.DataArray(data,[('component',comps),('R',R),('Z',Z)])    
         field.attrs['type'] = fio_py.FIO_MAGNETIC_FIELD
         field.name = magnetic_field[0]
 
@@ -236,7 +236,7 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
         
         data = np.array([data,data,data]) 
         
-        field = xray.DataArray(data,[('component',comps),('R',R),('Z',Z)])  
+        field = xr.DataArray(data,[('component',comps),('R',R),('Z',Z)])  
         field.attrs['type'] = fio_py.FIO_CURRENT_DENSITY
         field.name = current_density[0]
     
@@ -244,7 +244,7 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
         
         data = np.array([data,data,data])
         
-        field = xray.DataArray(data,[('component',comps),('R',R),('Z',Z)])    
+        field = xr.DataArray(data,[('component',comps),('R',R),('Z',Z)])    
         field.attrs['type'] = fio_py.FIO_ELECTRIC_FIELD
         field.name = electric_field[0]
         
@@ -252,7 +252,7 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
         
         data = np.array([data,data,data])
         
-        field = xray.DataArray(data,[('component',comps),('R',R),('Z',Z)])    
+        field = xr.DataArray(data,[('component',comps),('R',R),('Z',Z)])    
         field.attrs['type'] = fio_py.FIO_FLUID_VELOCITY
         field.name = fluid_velocity[0]
         
@@ -260,7 +260,7 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
         
         data = np.array([data,data,data])
         
-        field = xray.DataArray(data,[('component',comps),('R',R),('Z',Z)])    
+        field = xr.DataArray(data,[('component',comps),('R',R),('Z',Z)])    
         field.attrs['type'] = fio_py.FIO_VECTOR_POTENTIAL
         field.name = vector_potential[0]
                 
@@ -312,13 +312,13 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
                       
     # Composite fields
     elif name_lc == 'zero':
-        field = xray.DataArray(data,[('R',R),('Z',Z)])
+        field = xr.DataArray(data,[('R',R),('Z',Z)])
         field.attrs['type'] = 'composite'
         field.name = name_lc
         
     elif name_lc in major_radius:
         
-        field = xray.DataArray(data,[('R',R),('Z',Z)])
+        field = xr.DataArray(data,[('R',R),('Z',Z)])
         
         for j in range(points):
 
