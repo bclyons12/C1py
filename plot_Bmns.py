@@ -10,9 +10,11 @@ Date edited:
 """
 import numpy as np
 import xarray as xr
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.mlab import griddata
 from load_Bmns import load_Bmns
+import seaborn as sns
 
 def plot_Bmns(folder='./', phasing=0., slice=0, cur_up=1., cur_low=1.,
               machine=None, iplasma=None,  ntor=None, cmax=None, 
@@ -57,29 +59,47 @@ def plot_Bmns(folder='./', phasing=0., slice=0, cur_up=1., cur_low=1.,
     
     return f, axes
                   
-def plot_Bmn(Bmns,phasing=0.,cmax=None,interp='nearest',ax=None,uniform=False,
-             solo=True,title=r'|$B_{mn}$| (G)',xrange=None,yrange=None):
+def plot_Bmn(Bmns,phasing=0.,phasing2=None,cmax=None,interp='nearest',ax=None,uniform=False,
+             solo=True,title=r'|$B_{mn}$| (G)',xrange=None,yrange=None,figscl=1.0):
     
     p0 = Bmns.Psi.data
     m0 = Bmns.m.data
     
     if Bmns.phasing.size > 1:
-        B0 = Bmns.sel(phasing=phasing).Bmn.data
+        B0 = Bmns.sel(phasing=phasing)
     elif Bmns.phasing.data == phasing:
-        B0 = Bmns.Bmn.data
+        B0 = Bmns
     else:
         print("Error: phasing does not correspond to Bmns.phasing")
         return None
     
+    if phasing2 is not None:
+        if B0.phasing2.size > 1:
+            B0 = B0.sel(phasing2=phasing2)
+        elif B0.phasing2.data == phasing2:
+            B0 = B0
+        else:
+            print("Error: phasing2 does not correspond to Bmns.phasing2")
+            return None
+    
+    B0 = B0.Bmn.data
+    
     q    = Bmns.q.data
     ntor = Bmns.attrs['ntor']
     
-    
-    vmin = 0.
-    if cmax is None:
-        vmax = B0.max()
+    if Bmns.attrs['phase']:
+        vmin = -180.
+        vmax = 180.
+        cmap = mpl.colors.ListedColormap(sns.husl_palette(n_colors=256,s=1.,l=0.55))
     else:
-        vmax = cmax
+        vmin = 0.
+        if cmax is None:
+            vmax = B0.max()
+        else:
+            vmax = cmax
+        cmap = mpl.colors.ListedColormap(sns.color_palette("inferno", 256))
+        
+    sns.set_style('white')
         
     if xrange is None:
         xrange = [-10*abs(ntor),10*abs(ntor)]
@@ -110,14 +130,16 @@ def plot_Bmn(Bmns,phasing=0.,cmax=None,interp='nearest',ax=None,uniform=False,
         Bmn = B0
     
     if ax is None:
-        f, ax = plt.subplots(figsize=[12,9])
+        fs = figscl
+        f, ax = plt.subplots(figsize=[fs*12.,fs*9.])
     
     extent = [ml,mu,pl,pu]
     
     aspect = 0.9*(xrange[1]-xrange[0])/(yrange[1]-yrange[0])
     
-    im=ax.imshow(Bmn, origin='lower', vmin=vmin, vmax=vmax,
-                 extent=extent, cmap='jet',aspect=aspect,
+    
+    im=ax.imshow(Bmn, origin='lower',cmap=cmap,vmin=vmin, vmax=vmax,
+                 extent=extent,aspect=aspect,
                  interpolation=interp)
    
     ax.set_xlim(xrange)

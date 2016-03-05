@@ -18,7 +18,7 @@ def geofac(machine=None,ntor=None):
         elif ntor==2:
             fac = 3.0*np.sqrt(3.0)/(2.0*pi)
         elif ntor==3:
-            fac = 4.0/pi;
+            fac = 4.0/pi
         else:
             print('Error: ntor  unacceptable for ' + machine)
             return None
@@ -32,7 +32,17 @@ def geofac(machine=None,ntor=None):
         elif ntor==3:
             fac = 8.0*np.cos(pi/8.0)/(3.0*pi)
         elif ntor==4:
-            fac = 4.0/pi;
+            fac = 4.0/pi
+        else:
+            print('Error: ntor  unacceptable for ' + machine)
+            return None
+
+    elif machine is 'kstar':
+        
+        if ntor==1:
+            fac = 2.0*np.sqrt(2.0)/pi
+        elif ntor==2:
+            fac = 4.0/pi
         else:
             print('Error: ntor  unacceptable for ' + machine)
             return None
