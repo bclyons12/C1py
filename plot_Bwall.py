@@ -9,33 +9,40 @@ Date edited:
 
 import numpy as np
 import matplotlib.pyplot as plt
-import xarray as xr
+import seaborn as sns
 
-def plot_Bwall(B1,B2,range=None,title=None,legs=None):
+def plot_Bwall(Bs,yrange=None,title=None,legs=None,palette=None):
     
     f, ax = plt.subplots(figsize=[12,8])
     
-    Z1 = B1.Z.data
-    Bw1 = B1.data
+    N = len(Bs)
+
+    if palette is not None:
+        cols = sns.color_palette(n_colors=N,palette=palette)
+    else:
+        cols = sns.husl_palette(n_colors=N,s=1.,l=0.55)
     
-    Z2 = B2.Z.data
-    Bw2 = B2.data
+    hs = []
     
-    b1r, = plt.plot(Z1,np.real(Bw1),'b',linewidth=3)
-    #b1i, = plt.plot(Z1,np.imag(Bw1),'b-.',linewidth=3)
-    b2r, = plt.plot(Z2,np.real(Bw2),'r',linewidth=3)
-    #b2i, = plt.plot(Z2,np.imag(Bw2),'r-.',linewidth=3)
+    for i in range(N):
     
-    if legs is not None:
-        b1r.set_label(legs[0])#+' - Re{}')
-        #b1i.set_label(legs[0]+' - Im{}')
-        b2r.set_label(legs[1])#+' - Re{}')
-        #b2i.set_label(legs[1]+' - Im{}')
-        ax.legend(fontsize=18)
+        Z  = Bs[i].Z.data
+        Bw = Bs[i].data
+    
+        hr, = plt.plot(Z,np.real(Bw),'-', color=cols[i],linewidth=3)
+        #hi, = plt.plot(Z,np.imag(Bw),'-.',color=cols[i],linewidth=3)
+              
+        if legs is not None:
+            hr.set_label(legs[i])#+' - Re{}')
+            #hi.set_label(legs[i]+' - Im{}')
+            ax.legend(fontsize=18)
+            
+        hs.append(hr)
+        #hs.append(hi)
     
     ax.set_xlim([-1.25,1.25])
-    if range is not None:
-        ax.set_ylim(range)
+    if yrange is not None:
+        ax.set_ylim(yrange)
     
     if title is not None:
         f.suptitle(title,fontsize=22)
