@@ -145,13 +145,14 @@ def plot_Bmn(Bmns,phasing=0.,phasing2=None,cmax=None,interp='nearest',ax=None,un
     ax.set_xlim(xrange)
     ax.set_ylim(yrange)
     
-    ax.set_title(title,fontsize=24)
+    ax.set_title(title,fontsize=36)
     if solo:
-        ax.tick_params(labelsize=18)
-        ax.set_xlabel('m',fontsize=22)
-        ax.set_ylabel(r'$\Psi$',fontsize=22)
+        ax.tick_params(labelsize=28)
+        ax.set_xlabel(r'$m$',fontsize=32)
+        ax.set_ylabel(r'$\Psi$',fontsize=32)
         cb = plt.colorbar(im,ax=ax,format='%1.3g')
-        cb.ax.tick_params(labelsize=18)
+        cb.ax.tick_params(labelsize=28)
+        cb.set_label(r'$|B_{mn}|$ (G/kA)',fontsize=32)
         plt.tight_layout()
     
     ax.plot(ntor*q,p0,'w--',linewidth=3)
