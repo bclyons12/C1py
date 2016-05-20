@@ -14,7 +14,7 @@ import seaborn as sns
 def plot_Bwall(Bs,yrange=None,title=None,legs=None,palette=None):
     
     f, ax = plt.subplots(figsize=[12,8])
-    
+    sns.set_style('white')
     N = len(Bs)
 
     if palette is not None:
