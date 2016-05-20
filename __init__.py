@@ -37,3 +37,7 @@ from plot_Bmns import plot_Bmns, plot_Bmn
 import plot_Bwall
 reload(plot_Bwall)
 from plot_Bwall import plot_Bwall
+
+import calc_puc
+reload(calc_puc)
+from calc_puc import calc_puc
