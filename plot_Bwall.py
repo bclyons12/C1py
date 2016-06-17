@@ -29,13 +29,13 @@ def plot_Bwall(Bs,yrange=None,title=None,legs=None,palette=None):
         Z  = Bs[i].Z.data
         Bw = Bs[i].data
     
-        hr, = plt.plot(Z,np.real(Bw),'-', color=cols[i],linewidth=3)
+        hr, = plt.plot(Z,np.real(Bw),'-', color=cols[i],linewidth=4)
         #hi, = plt.plot(Z,np.imag(Bw),'-.',color=cols[i],linewidth=3)
               
         if legs is not None:
             hr.set_label(legs[i])#+' - Re{}')
             #hi.set_label(legs[i]+' - Im{}')
-            ax.legend(fontsize=18)
+            ax.legend(fontsize=22,loc='best')
             
         hs.append(hr)
         #hs.append(hi)
@@ -45,10 +45,11 @@ def plot_Bwall(Bs,yrange=None,title=None,legs=None,palette=None):
         ax.set_ylim(yrange)
     
     if title is not None:
-        f.suptitle(title,fontsize=22)
+        ax.set_title(title,fontsize=32)
     
-    ax.set_xlabel('Z',fontsize=20)
-    ax.set_ylabel(r'Re{$B_Z$}',fontsize=20)
-    ax.tick_params(labelsize=18)
+    ax.set_xlabel('Z',fontsize=28)
+    ax.set_ylabel(r'HFS Re{$\delta B_{Z,pl}$} (G/kA)',fontsize=28)
+    ax.tick_params(labelsize=24)
+    #plt.tight_layout()
     
-    return (f,ax)
+    return (f,ax,hs)

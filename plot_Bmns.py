@@ -152,6 +152,7 @@ def plot_Bmn(Bmns,phasing=0.,phasing2=None,cmax=None,interp='nearest',ax=None,un
         ax.set_ylabel(r'$\Psi$',fontsize=fs*32)
         cb = plt.colorbar(im,ax=ax,format='%1.3g')#,ticks=[0.,0.25,0.5,0.75,1.,1.25])
         cb.ax.tick_params(labelsize=fs*28)
+        cb.set_label(r'$|B_{mn}|$ (G/kA)',fontsize=32)
         plt.tight_layout()
     
     ax.plot(ntor*q,p0,'w--',linewidth=5)
