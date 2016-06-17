@@ -11,7 +11,6 @@ Brendan Carrick Lyons
 import numpy as np
 import fio_py
 import xarray as xr
-#from C1field import C1field
 
 # constants
 import scipy.constants as spc
@@ -130,9 +129,9 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
     
     
     if rrange is None:
-        rrange = [1.,2.5]      # I want to read this from the file somehow
+        rrange = [0.75,2.5]      # I want to read this from the file somehow
     if zrange is None:
-        zrange = [-1.25,1.25]  # I want to read this from the file somehow
+        zrange = [-1.5,1.5]  # I want to read this from the file somehow
 
         
     R = np.linspace(rrange[0],rrange[1],points)

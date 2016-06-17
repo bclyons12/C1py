@@ -7,17 +7,6 @@ Date created: Tue Jan  5 12:04:44 2016
 Date edited:  
 """
 
-#import read_field
-#reload(read_field)
-#from read_field import read_field
-
-#import plot_field
-#reload(plot_field)
-#from plot_field import plot_field
-
-import geofac
-reload(geofac)
-
 import load_Bmns
 reload(load_Bmns)
 from load_Bmns import load_Bmns
@@ -30,6 +19,10 @@ import load_Bres
 reload(load_Bres)
 from load_Bres import load_Bres
 
+import multi_Bres
+reload(multi_Bres)
+from multi_Bres import multi_Bres
+
 import plot_Bmns
 reload(plot_Bmns)
 from plot_Bmns import plot_Bmns, plot_Bmn
@@ -41,3 +34,15 @@ from plot_Bwall import plot_Bwall
 import calc_puc
 reload(calc_puc)
 from calc_puc import calc_puc
+
+import read_field
+reload(read_field)
+from read_field import read_field
+
+import plot_field
+reload(plot_field)
+from plot_field import plot_field
+
+import plot_shape
+reload(plot_shape)
+from plot_shape import plot_shape
