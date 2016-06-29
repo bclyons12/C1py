@@ -59,8 +59,11 @@ def plot_Bmns(folder='./', phasing=0., slice=0, cur_up=1., cur_low=1.,
     
     return f, axes
                   
-def plot_Bmn(Bmns,phasing=0.,phasing2=None,cmax=None,interp='nearest',ax=None,uniform=False,
-             solo=True,title=r'|$B_{mn}$| (G)',xrange=None,yrange=None,figscl=1.0):
+def plot_Bmn(Bmns,phasing=0.,phasing2=None,cmax=None,interp='nearest',ax=None,
+             uniform=False,solo=True,title=r'|$B_{mn}$| (G)',xrange=None,
+             yrange=None,figscl=1.0):
+    
+    fs = figscl
     
     p0 = Bmns.Psi.data
     m0 = Bmns.m.data
@@ -99,8 +102,6 @@ def plot_Bmn(Bmns,phasing=0.,phasing2=None,cmax=None,interp='nearest',ax=None,un
             vmax = cmax
         cmap = mpl.colors.ListedColormap(sns.color_palette("inferno", 256))
         
-    sns.set_style('white')
-        
     if xrange is None:
         xrange = [-10*abs(ntor),10*abs(ntor)]
     if yrange is None:
@@ -130,12 +131,13 @@ def plot_Bmn(Bmns,phasing=0.,phasing2=None,cmax=None,interp='nearest',ax=None,un
         Bmn = B0
     
     if ax is None:
-        fs = figscl
+        sns.set_style('white')
         f, ax = plt.subplots(figsize=[fs*12.,fs*9.])
+        
     
     extent = [ml,mu,pl,pu]
     
-    aspect = 0.9*(xrange[1]-xrange[0])/(yrange[1]-yrange[0])
+    aspect = 1.0*(xrange[1]-xrange[0])/(yrange[1]-yrange[0])
     
     
     im=ax.imshow(Bmn, origin='lower',cmap=cmap,vmin=vmin, vmax=vmax,
@@ -144,8 +146,10 @@ def plot_Bmn(Bmns,phasing=0.,phasing2=None,cmax=None,interp='nearest',ax=None,un
    
     ax.set_xlim(xrange)
     ax.set_ylim(yrange)
+
+    if title is not None:
+        ax.set_title(title,fontsize=fs*36)
     
-    ax.set_title(title,fontsize=fs*36)
     if solo:
         ax.tick_params(labelsize=fs*28)
         ax.set_xlabel(r'$m$',fontsize=fs*32)
@@ -155,6 +159,6 @@ def plot_Bmn(Bmns,phasing=0.,phasing2=None,cmax=None,interp='nearest',ax=None,un
         cb.set_label(r'$|B_{mn}|$ (G/kA)',fontsize=32)
         plt.tight_layout()
     
-    ax.plot(ntor*q,p0,'w--',linewidth=5)
+    ax.plot(ntor*q,p0,'w--',linewidth=3)
     
     return im

@@ -12,11 +12,15 @@ import fio_py
 from read_field import read_field
 from get_wall import get_wall
 import seaborn as sns
-sns.set_style('white')
 
-def plot_shape(folder='./', rrange=None, zrange=None,bound=None):
-
-    f, ax = plt.subplots(figsize=[8,12])
+def plot_shape(folder='./', rrange=None, zrange=None,bound=False,ax=None,
+               legend=True, fs=1.0, Nlvl_in=10,Nlvl_out=1,linewidth=3):
+    
+    if ax is None:
+        sns.set_style('white')
+        f, ax = plt.subplots(figsize=[fs*8,fs*12])
+    else:
+        f = None
     
     if isinstance(folder,basestring):
            folder = [folder]
@@ -47,7 +51,8 @@ def plot_shape(folder='./', rrange=None, zrange=None,bound=None):
 
 #        print([psi_axis,psi_lcfs])
         
-        levels = (np.arange(12.)/10.)*(psi_lcfs - psi_axis) + psi_axis
+        levels = (np.arange(Nlvl_in+Nlvl_out+1.)/Nlvl_in)
+        levels = levels*(psi_lcfs-psi_axis)+psi_axis
         if psi_lcfs < psi_axis:
             levels = np.flipud(levels)
         
@@ -56,22 +61,23 @@ def plot_shape(folder='./', rrange=None, zrange=None,bound=None):
 
         col = mpl.colors.rgb2hex(cols[i-1])
         if i==0:
-            ax.contour(psi.R,psi.Z,psi.data.T,levels,colors=col,
-                            linewidths=3,linestyles='solid')
-            h, = ax.plot([np.inf,np.inf],[np.inf,np.inf],'-',color=col,
-                         linewidth=3)
+            hold='off'
         else:
-            ax.contour(psi.R,psi.Z,psi.data.T,levels,hold='on',colors=col,
-                            linewidths=3,linestyles='solid')
+            hold='on'
+            
+        ax.contour(psi.R,psi.Z,psi.data.T,levels,hold=hold,colors=col,
+                        linewidths=linewidth,linestyles='solid')
+                        
+        if legend:
             h, = ax.plot([np.inf,np.inf],[np.inf,np.inf],'-',color=col,
-                         linewidth=3)
-        
-        h.set_label(folder[i])
+                         linewidth=linewidth)
+            
+            h.set_label(folder[i])
     
-    if bound is not None:
+    if bound:
         (Wi,Wo) = get_wall()
-        ax.plot(Wi[:,0],Wi[:,1],'k--',linewidth=1)
-        ax.plot(Wo[:,0],Wo[:,1],'k--',linewidth=1)
+        ax.plot(Wi[:,0],Wi[:,1],'r-',linewidth=1)
+        ax.plot(Wo[:,0],Wo[:,1],'r-',linewidth=1)
         
     
     if rrange is None:
@@ -81,10 +87,12 @@ def plot_shape(folder='./', rrange=None, zrange=None,bound=None):
         
     ax.set_xlim(rrange)
     ax.set_ylim(zrange)
-    ax.set_xlabel('R',fontsize=24)
-    ax.set_ylabel('Z',fontsize=24)
-    ax.tick_params(labelsize=20)
-    ax.legend(fontsize=16)
-    plt.tight_layout()
+    ax.set_xlabel(r'$R$ (m)',fontsize=24*fs)
+    ax.set_ylabel(r'$Z$ (m)',fontsize=24*fs)
+    ax.tick_params(labelsize=20*fs)
+    if legend:
+        ax.legend(fontsize=16*fs)
+    if f is not None:
+        plt.tight_layout()
     
     return
