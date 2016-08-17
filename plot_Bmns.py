@@ -61,7 +61,7 @@ def plot_Bmns(folder='./', phasing=0., slice=0, cur_up=1., cur_low=1.,
                   
 def plot_Bmn(Bmns,phasing=0.,phasing2=None,cmax=None,interp='nearest',ax=None,
              uniform=False,solo=True,title=r'|$B_{mn}$| (G)',xrange=None,
-             yrange=None,figscl=1.0):
+             yrange=None,figscl=1.0,Jmn=False):
     
     fs = figscl
     
@@ -85,14 +85,17 @@ def plot_Bmn(Bmns,phasing=0.,phasing2=None,cmax=None,interp='nearest',ax=None,
             print("Error: phasing2 does not correspond to Bmns.phasing2")
             return None
     
-    B0 = B0.Bmn.data
+    if Jmn:
+        B0 = B0.Jmn.data
+    else:
+        B0 = B0.Bmn.data
     
     q    = Bmns.q.data
     ntor = Bmns.attrs['ntor']
     
     if Bmns.attrs['phase']:
-        vmin = -180.
-        vmax = 180.
+        vmin = 0.
+        vmax = 360.
         cmap = mpl.colors.ListedColormap(sns.husl_palette(n_colors=256,s=1.,l=0.55))
     else:
         vmin = 0.
@@ -156,7 +159,10 @@ def plot_Bmn(Bmns,phasing=0.,phasing2=None,cmax=None,interp='nearest',ax=None,
         ax.set_ylabel(r'$\Psi$',fontsize=fs*32)
         cb = plt.colorbar(im,ax=ax,format='%1.3g')#,ticks=[0.,0.25,0.5,0.75,1.,1.25])
         cb.ax.tick_params(labelsize=fs*28)
-        cb.set_label(r'$|B_{mn}|$ (G/kA)',fontsize=32)
+        if Jmn:
+            cb.set_label(r'$|J_{mn}|$ (kA)',fontsize=32)
+        else:
+            cb.set_label(r'$|B_{mn}|$ (G/kA)',fontsize=32)
         plt.tight_layout()
     
     ax.plot(ntor*q,p0,'w--',linewidth=3)

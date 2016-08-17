@@ -13,7 +13,7 @@ from numpy import pi
 from geofac import geofac
 
 def load_Bres(folder='./',slice=0,phasing=0.,machine='diiid',cur_up=1.,
-               cur_low=1.,ntor=None):
+               cur_low=1.,ntor=None,phase=False):
                    
     fup  = folder+'/Bres_upper-'+str(slice)+'.txt'
     flow = folder+'/Bres_lower-'+str(slice)+'.txt'    
@@ -49,7 +49,11 @@ def load_Bres(folder='./',slice=0,phasing=0.,machine='diiid',cur_up=1.,
                              
     Bres_up  = cur_up*xr.DataArray(Bru,[('Psi',Psi)])
     Bres_low = cur_low*xr.DataArray(Brl,[('Psi',Psi)])
-    Bres = np.abs(cur*Bres_up + Bres_low)
+    Bres = cur*Bres_up + Bres_low
+    if phase:
+        Bres.data = np.angle(Bres.data,deg=True) % 360.
+    else:
+        Bres.data = np.abs(Bres.data)
     q = xr.DataArray(q,[('Psi',Psi)])
     
     return (Bres, q)

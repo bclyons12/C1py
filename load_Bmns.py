@@ -19,7 +19,7 @@ from geofac import geofac
 
 def load_Bmns(folder='./', phasing=0., slice=0, cur_up=1., cur_low=1.,
               cur_mid=None, machine=None, iplasma=None, code='m3dc1',
-              ntor=None,phase=False):
+              ntor=None,phase=False,Jmn=False):
     
     if machine is 'diiid':
         conv = 1.0
@@ -49,8 +49,12 @@ def load_Bmns(folder='./', phasing=0., slice=0, cur_up=1., cur_low=1.,
     
     elif code is 'm3dc1':
         
-        file_up  = folder+'/bmn_upper-'+str(slice)+'.cdf'
-        file_low = folder+'/bmn_lower-'+str(slice)+'.cdf'
+        if Jmn:
+            file_up  = folder+'/jmn3_upper-'+str(slice)+'.cdf'
+            file_low = folder+'/jmn3_lower-'+str(slice)+'.cdf'
+        else:
+            file_up  = folder+'/bmn_upper-'+str(slice)+'.cdf'
+            file_low = folder+'/bmn_lower-'+str(slice)+'.cdf'
         
         ds_up  = xr.open_dataset(file_up)
         ds_low = xr.open_dataset(file_low)
@@ -68,15 +72,22 @@ def load_Bmns(folder='./', phasing=0., slice=0, cur_up=1., cur_low=1.,
         Blow = ds_low.bmn_real.data + 1j*ds_low.bmn_imag.data
 
         if cur_mid is not None:
-            file_mid = folder+'/bmn_middle-'+str(slice)+'.cdf'
+            if Jmn:
+                file_mid = folder+'/jmn_middle-'+str(slice)+'.cdf'
+            else:
+                file_mid = folder+'/bmn_middle-'+str(slice)+'.cdf'
             ds_mid = xr.open_dataset(file_mid)
             cur_mid = fac*cur_mid
             Bmid = ds_mid.bmn_real.data + 1j*ds_mid.bmn_imag.data
             
         if (iplasma is not None) and (slice > 0):
             
-            file_up  = folder+'/bmn_upper-0.cdf'
-            file_low = folder+'/bmn_lower-0.cdf'
+            if Jmn:
+                file_up  = folder+'/jmn3_upper-0.cdf'
+                file_low = folder+'/jmn3_lower-0.cdf'
+            else:
+                file_up  = folder+'/bmn_upper-0.cdf'
+                file_low = folder+'/bmn_lower-0.cdf'
             
             ds_vu = xr.open_dataset(file_up)
             ds_vl = xr.open_dataset(file_low)
@@ -87,12 +98,14 @@ def load_Bmns(folder='./', phasing=0., slice=0, cur_up=1., cur_low=1.,
             Blow -= 1j*ds_vl.bmn_imag.data
             
             if cur_mid is not None:
-                file_mid= folder+'/bmn_middle-0.cdf'
+                if Jmn:
+                    file_mid= folder+'/jmn3_middle-0.cdf'
+                else:
+                    file_mid= folder+'/bmn_middle-0.cdf'
                 ds_vm = xr.open_dataset(file_mid)
                 Bmid -= ds_vm.bmn_real.data
                 Bmid -= 1j*ds_vm.bmn_imag.data
                 
-        
         
         q = ds_up.q.data        
         
@@ -199,13 +212,16 @@ def load_Bmns(folder='./', phasing=0., slice=0, cur_up=1., cur_low=1.,
         Bmn = Bmn + cur2*Bmn_mid
     
     if phase:
-        Bmn = xru.angle(Bmn,deg=True)
+        Bmn = xru.angle(Bmn,deg=True) % 360.
     else:
         Bmn = np.abs(Bmn)     
     
     q = xr.DataArray(q,[('Psi',Psi)])
         
-    Bmns = xr.Dataset({'Bmn':Bmn,'q':q})
+    if Jmn:
+        Bmns = xr.Dataset({'Jmn':Bmn,'q':q})
+    else:
+        Bmns = xr.Dataset({'Bmn':Bmn,'q':q})
     
     Bmns.attrs['ntor'] = ntor
     Bmns.attrs['phase'] = phase
