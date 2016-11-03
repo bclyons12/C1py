@@ -61,7 +61,7 @@ def plot_Bmns(folder='./', phasing=0., slice=0, cur_up=1., cur_low=1.,
                   
 def plot_Bmn(Bmns,phasing=0.,phasing2=None,cmax=None,interp='nearest',ax=None,
              uniform=False,solo=True,title=r'|$B_{mn}$| (G)',xrange=None,
-             yrange=None,figscl=1.0,Jmn=False):
+             yrange=None,figscl=1.0,Jmn=False,log=False):
     
     fs = figscl
     
@@ -90,6 +90,9 @@ def plot_Bmn(Bmns,phasing=0.,phasing2=None,cmax=None,interp='nearest',ax=None,
     else:
         B0 = B0.Bmn.data
     
+    if log:
+        B0 = np.log2(B0)
+    
     q    = Bmns.q.data
     ntor = Bmns.attrs['ntor']
     
@@ -103,6 +106,8 @@ def plot_Bmn(Bmns,phasing=0.,phasing2=None,cmax=None,interp='nearest',ax=None,
             vmax = B0.max()
         else:
             vmax = cmax
+        if log:
+            vmax = np.log2(vmax)
         cmap = mpl.colors.ListedColormap(sns.color_palette("inferno", 256))
         
     if xrange is None:
