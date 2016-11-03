@@ -66,7 +66,13 @@ def load_Bmns(folder='./', phasing=0., slice=0, cur_up=1., cur_low=1.,
         cur_low = fac*cur_low
 
         m    = ds_up.m
-        Psi  = ds_up.psi        
+        
+        try:
+            print("Using Bmn netCDF version " +str(ds_up.version))
+            Psi  = ds_up.psi_norm 
+        except AttributeError:
+            print("Using Bmn netCDF version 0")
+            Psi  = ds_up.psi     
         
         Bup  = ds_up.bmn_real.data + 1j*ds_up.bmn_imag.data
         Blow = ds_low.bmn_real.data + 1j*ds_low.bmn_imag.data
