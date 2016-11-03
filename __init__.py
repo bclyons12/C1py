@@ -35,6 +35,14 @@ import calc_puc
 reload(calc_puc)
 from calc_puc import calc_puc
 
+import plot_omegas
+reload(plot_omegas)
+from plot_omegas import plot_omegas
+
+import calc_ExB
+reload(calc_ExB)
+from calc_ExB import calc_ExB
+
 import read_field
 reload(read_field)
 from read_field import read_field
