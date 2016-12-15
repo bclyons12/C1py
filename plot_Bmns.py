@@ -141,6 +141,8 @@ def plot_Bmn(Bmns,phasing=0.,phasing2=None,cmax=None,interp='nearest',ax=None,
     if ax is None:
         sns.set_style('white')
         f, ax = plt.subplots(figsize=[fs*12.,fs*9.])
+    else:
+        f = None
         
     
     extent = [ml,mu,pl,pu]
@@ -172,4 +174,4 @@ def plot_Bmn(Bmns,phasing=0.,phasing2=None,cmax=None,interp='nearest',ax=None,
     
     ax.plot(ntor*q,p0,'w--',linewidth=3)
     
-    return im
+    return (f, ax, im)

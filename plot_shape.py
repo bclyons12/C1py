@@ -13,8 +13,9 @@ from read_field import read_field
 from get_wall import get_wall
 import seaborn as sns
 
-def plot_shape(folder='./', rrange=None, zrange=None,bound=False,ax=None,
-               legend=True, fs=1.0, Nlvl_in=10,Nlvl_out=1,linewidth=3):
+def plot_shape(folder='./', rrange=None, zrange=None, bound=False, ax=None,
+               legend=True, fs=1.0, Nlvl_in=10, Nlvl_out=1, linewidth=3, 
+               title=None):
     
     if ax is None:
         sns.set_style('white')
@@ -87,11 +88,13 @@ def plot_shape(folder='./', rrange=None, zrange=None,bound=False,ax=None,
         
     ax.set_xlim(rrange)
     ax.set_ylim(zrange)
-    ax.set_xlabel(r'$R$ (m)',fontsize=24*fs)
-    ax.set_ylabel(r'$Z$ (m)',fontsize=24*fs)
-    ax.tick_params(labelsize=20*fs)
+    ax.set_xlabel(r'$R$ (m)',fontsize=28*fs)
+    ax.set_ylabel(r'$Z$ (m)',fontsize=28*fs)
+    ax.tick_params(labelsize=24*fs)
+    if title is not None:
+        ax.set_title(title,fontsize=32*fs)
     if legend:
-        ax.legend(fontsize=16*fs)
+        ax.legend(fontsize=24*fs)
     if f is not None:
         plt.tight_layout()
     

@@ -12,6 +12,7 @@ Brendan Carrick Lyons
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 import fio_py
 from read_field import read_field
 from get_wall import get_wall
@@ -22,10 +23,13 @@ def plot_field(field,filename='C1.h5', points=200,  slice=0,
                range=None,xrange=None,yrange=None, rrange=None, zrange=None, 
                palette=None, lcfs=None, bound=None, linfac=1., phi=0.,
                iabs=None, iphase=None, isum=None, iavg=None, idiff=None,
-               ilinear=None, iequil=None, icomplex=None, ntor=None):
+               ilinear=None, iequil=None, icomplex=None, ntor=None,
+               title=None,fs=1.0,ax=None):
 
     if isinstance(field,basestring):
         # Read this field
+        if title is None:
+            title = field
         field = read_field(field, slice=slice, filename=filename, phi=phi,
                            points=points, rrange=rrange, zrange=zrange,
                            linfac=linfac, iabs=iabs, iphase=iphase, 
@@ -57,21 +61,36 @@ def plot_field(field,filename='C1.h5', points=200,  slice=0,
     extent = [field.R.data[0],field.R.data[-1],
               field.Z.data[0],field.Z.data[-1]]
 
-    f, ax = plt.subplots(figsize=[8,12])
+    if ax is None:
+        f, ax = plt.subplots(figsize=[fs*8,fs*12])
+    else:
+        f = None
     
     im=ax.imshow(data.T, origin='lower', vmin=vmin, vmax=vmax,
                  extent=extent, cmap=cmap)
                      
-    cb = f.colorbar(im,format='%1.3g')
-    
     if xrange is None:
         xrange = [field.R.data[0],field.R.data[-1]]
     if yrange is None:
         yrange = [field.Z.data[0],field.Z.data[-1]]
         
     ax.set_xlim(xrange)
+    ax.set_xlabel(r'$R$ (m)',fontsize=fs*28)
     ax.set_ylim(yrange)
-        
+    ax.set_ylabel(r'$Z$ (m)',fontsize=fs*28)
+    if title is not None:
+        ax.set_title(title,fontsize=fs*32)
+    ax.tick_params(labelsize=fs*24)
+    
+    if f is not None:
+        cb = f.colorbar(im,format='%1.3g')
+        cb.ax.tick_params(labelsize=fs*24)
+    else:
+        div = make_axes_locatable(ax)
+        cax = div.append_axes("right",size="10%",pad=0.02)
+        cb = plt.colorbar(im,cax=cax,format='%1.3g')
+        cb.ax.tick_params(labelsize=fs*24)
+    
     if lcfs is not None:
         if not isinstance(filename,basestring):
             filename = filename[0]
