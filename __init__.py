@@ -35,6 +35,10 @@ import calc_puc
 reload(calc_puc)
 from calc_puc import calc_puc
 
+import calc_puc_multi
+reload(calc_puc_multi)
+from calc_puc_multi import calc_puc_multi
+
 import plot_omegas
 reload(plot_omegas)
 from plot_omegas import plot_omegas

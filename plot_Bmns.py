@@ -167,9 +167,9 @@ def plot_Bmn(Bmns,phasing=0.,phasing2=None,cmax=None,interp='nearest',ax=None,
         cb = plt.colorbar(im,ax=ax,format='%1.3g')#,ticks=[0.,0.25,0.5,0.75,1.,1.25])
         cb.ax.tick_params(labelsize=fs*28)
         if Jmn:
-            cb.set_label(r'$|J_{mn}|$ (kA)',fontsize=32)
+            cb.set_label(r'$|J_{mn}|$ (kA)',fontsize=fs*32)
         else:
-            cb.set_label(r'$|B_{mn}|$ (G/kA)',fontsize=32)
+            cb.set_label(r'$|B_{mn}|$ (G/kA)',fontsize=fs*32)
         plt.tight_layout()
     
     ax.plot(ntor*q,p0,'w--',linewidth=3)

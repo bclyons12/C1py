@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-plot_Bmns
+calc_puc
 
-Plot Bmn vs Psi and m, overlayed with the m=nq resonance line from a Bmns Dataset
+Calculate magnetic signal versus phasing
 
 Author:       Brendan Carrick Lyons
 Date created: Thu Jan 21 12:53:28 2016
