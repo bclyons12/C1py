@@ -87,3 +87,5 @@ def plot_omegas(file='omegas.txt',Zimp=None,xrange=None,yrange=None,
     ax.tick_params(labelsize=20)
     ax.set_title(title,fontsize=28)
     plt.tight_layout()
+    
+    return f,ax

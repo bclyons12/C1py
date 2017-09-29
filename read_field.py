@@ -184,7 +184,11 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
     height               = ['height', 'z']
     ion_temperature      = ['ion_temperature', 'ti']
     electron_temperature = ['electron_temperature', 'te']
-
+    Bpl_comp =  {'bx_plasma':'R', 'by_plasma':'phi', 'bt_plasma':'phi',
+                 'bphi_plasma':'phi', 'bz_plasma':'Z'}
+    Jpl_comp =  {'jx_plasma':'R', 'jy_plasma':'phi', 'jt_plasma':'phi', 
+                 'jphi_plasma':'phi', 'jz_plasma':'Z'}
+    
     name_lc = name.lower()
 
     # Primitive scalar fields
@@ -464,6 +468,31 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
         field = b2.drop('component')
         field.attrs['type'] = 'composite'
         field.name = name_lc
+    
+    elif name_lc in Bpl_comp:
+
+        B0 = read_field('bfield', slice=0, filename=filename, points=points, 
+                        phi=phi, rrange=rrange, zrange=zrange, ilinear=ilinear,
+                        iequil=iequil, icomplex=icomplex, ntor=ntor)
+        B1 = read_field('bfield', slice=slice, filename=filename, points=points, 
+                        phi=phi, rrange=rrange, zrange=zrange, ilinear=ilinear,
+                        iequil=iequil, icomplex=icomplex, ntor=ntor)
+        
+        Bpl = B1-B0
+        field = Bpl.sel(component=Bpl_comp[name_lc])
+        field.attrs['type'] = 'component'
+
+    elif name_lc in Jpl_comp:
+
+        J0 = read_field('j', slice=0, filename=filename, points=points, 
+                        phi=phi, rrange=rrange, zrange=zrange, ilinear=ilinear,
+                        iequil=iequil, icomplex=icomplex, ntor=ntor)
+        J1 = read_field('j', slice=slice, filename=filename, points=points, 
+                        phi=phi, rrange=rrange, zrange=zrange, ilinear=ilinear,
+                        iequil=iequil, icomplex=icomplex, ntor=ntor)
+        Jpl = J1-J0
+        field = Jpl.sel(component=Jpl_comp[name_lc])
+        field.attrs['type'] = 'component'
     
     elif name_lc == 'omega':
 
