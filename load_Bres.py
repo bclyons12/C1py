@@ -63,7 +63,7 @@ def load_Bres(folder='./',slice=0,phasing=0.,machine='diiid',cur_up=1.,
         cur2 = xr.DataArray(np.cos(pi*phasing/180.)+conv*1j*np.sin(pi*phasing/180.),
                             {'phasing2':phasing})
         Bres_mid = cur_mid*xr.DataArray(Brm,[('Psi',Psi)])
-        Bres += cur2*Bres_mid
+        Bres = Bres + cur2*Bres_mid
     
     if phase:
         Bres.data = np.angle(Bres.data,deg=True) % 360.
