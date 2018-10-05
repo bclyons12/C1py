@@ -45,7 +45,7 @@ def calc_puc(hfs='hfs.txt', lfs='lfs.txt', phasing=0., cur_up=1., cur_low=1.,
     dBl_vl = dBl[3]
     
     cur = xr.DataArray(np.cos(pi*phasing/180.)+conv*1j*np.sin(pi*phasing/180.),
-                             {'phasing':phasing})
+                             {'phasing':phasing},dims=['phasing'])
                              
     if   field == 0:
         dBl = cur*cur_up*dBl_vu + cur_low*dBl_vl

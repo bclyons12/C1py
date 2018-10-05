@@ -39,6 +39,14 @@ import calc_puc_multi
 reload(calc_puc_multi)
 from calc_puc_multi import calc_puc_multi
 
+import calc_puc_3
+reload(calc_puc_3)
+from calc_puc_3 import calc_puc_3
+
+import calc_puc_3_multi
+reload(calc_puc_3_multi)
+from calc_puc_3_multi import calc_puc_3_multi
+
 import plot_omegas
 reload(plot_omegas)
 from plot_omegas import plot_omegas
@@ -58,3 +66,7 @@ from plot_field import plot_field
 import plot_shape
 reload(plot_shape)
 from plot_shape import plot_shape
+
+import vary_sfp
+reload(vary_sfp)
+from vary_sfp import vary_sfp
