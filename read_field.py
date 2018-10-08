@@ -18,7 +18,7 @@ import scipy.constants as spc
 def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
                rrange=None, zrange=None, linfac=1., iabs=None, iphase=None,
                isum=None, iavg=None, idiff=None,ilinear=None, iequil=None, 
-               icomplex=None, ntor=None):
+               icomplex=None, ntor=None,nimrod=False):
     
     # Redefine zero options to None for convenience
     if iabs==0:
@@ -111,8 +111,15 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
             print('Warning:  Only considering first phi')
             phi = phi[0]
             
-        
-    
+    if nimrod:
+        #filename is actually a folder
+        R = np.loadtxt(filename+'/r.txt')
+        Z = np.loadtxt(filename+'/z.txt')
+        data = np.loadtxt(filename+'/'+name+'%d'%slice+'.txt')
+        data = np.transpose(np.nan_to_num(data))
+        field = xr.DataArray(data,[('Z',Z),('R',R)])
+        return field
+
     # initialize the M3D-C1 file
     isrc = fio_py.open_source(fio_py.FIO_M3DC1_SOURCE,filename)
     fio_py.get_options(isrc)
@@ -132,7 +139,6 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
         rrange = [0.75,2.5]      # I want to read this from the file somehow
     if zrange is None:
         zrange = [-1.5,1.5]  # I want to read this from the file somehow
-
         
     R = np.linspace(rrange[0],rrange[1],points)
     Z = np.linspace(zrange[0],zrange[1],points)

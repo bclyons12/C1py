@@ -25,7 +25,7 @@ def plot_field(field,filename='C1.h5', points=200,  slice=0,
                iabs=None, iphase=None, isum=None, iavg=None, idiff=None,
                ilinear=None, iequil=None, icomplex=None, ntor=None,
                title=None,fs=1.0,ax=None,symrange=False,cb_label=None,
-               minval=None, maxval=None):
+               minval=None, maxval=None, nimrod=False):
 
     if isinstance(field,basestring):
         # Read this field
@@ -35,7 +35,7 @@ def plot_field(field,filename='C1.h5', points=200,  slice=0,
                            points=points, rrange=rrange, zrange=zrange,
                            linfac=linfac, iabs=iabs, iphase=iphase, 
                            isum=isum, iavg=iavg, idiff=idiff, ilinear=ilinear, 
-                           iequil=iequil, icomplex=icomplex, ntor=ntor)
+                           iequil=iequil, icomplex=icomplex, ntor=ntor,nimrod=nimrod)
                         
     data = np.nan_to_num(fac*np.real(field.data))
         
@@ -53,6 +53,7 @@ def plot_field(field,filename='C1.h5', points=200,  slice=0,
         vmin = minval
     if maxval is not None:
         vmax = maxval
+    print vmin,vmax
 
     if palette is None:
         if vmin >= 0.:
