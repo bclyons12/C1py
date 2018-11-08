@@ -115,7 +115,7 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
         #filename is actually a folder
         R = np.loadtxt(filename+'/r.txt')
         Z = np.loadtxt(filename+'/z.txt')
-        data = np.loadtxt(filename+'/'+name+'%d'%slice+'.txt')
+        data = np.loadtxt(filename+'/'+name+('%d'%slice).zfill(5)+'.txt')
         data = np.transpose(np.nan_to_num(data))
         field = xr.DataArray(data,[('Z',Z),('R',R)])
         return field

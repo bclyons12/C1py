@@ -25,7 +25,7 @@ def plot_field(field,filename='C1.h5', points=200,  slice=0,
                iabs=None, iphase=None, isum=None, iavg=None, idiff=None,
                ilinear=None, iequil=None, icomplex=None, ntor=None,
                title=None,fs=1.0,ax=None,symrange=False,cb_label=None,
-               minval=None, maxval=None, nimrod=False):
+               minval=None, maxval=None, nimrod=False,make_cb=True):
 
     if isinstance(field,basestring):
         # Read this field
@@ -91,18 +91,21 @@ def plot_field(field,filename='C1.h5', points=200,  slice=0,
         ax.set_title(title,fontsize=fs*32)
     ax.tick_params(labelsize=fs*24)
     
-    if f is not None:
-        cb = f.colorbar(im,format='%1.3g')
-        cb.ax.tick_params(labelsize=fs*24)
+    if make_cb:
+        if f is not None:
+            cb = f.colorbar(im,format='%1.3g')
+            cb.ax.tick_params(labelsize=fs*24)
+        else:
+            div = make_axes_locatable(ax)
+            cax = div.append_axes("right",size="10%",pad=0.02)
+            cb = plt.colorbar(im,cax=cax,format='%1.3g')
+            cb.ax.tick_params(labelsize=fs*24)
+        if cb_label is not None:
+            cb.ax.get_yaxis().labelpad=fs*36
+            cb.ax.set_ylabel(cb_label,rotation=270,fontsize=fs*24)
     else:
-        div = make_axes_locatable(ax)
-        cax = div.append_axes("right",size="10%",pad=0.02)
-        cb = plt.colorbar(im,cax=cax,format='%1.3g')
-        cb.ax.tick_params(labelsize=fs*24)
-    if cb_label is not None:
-        cb.ax.get_yaxis().labelpad=fs*36
-        cb.ax.set_ylabel(cb_label,rotation=270,fontsize=fs*24)
-    
+        cb = None
+
     if lcfs is not None:
         if not isinstance(filename,basestring):
             filename = filename[0]
@@ -133,7 +136,10 @@ def plot_field(field,filename='C1.h5', points=200,  slice=0,
         ax.plot(Wi[:,0],Wi[:,1],'--',color=col_lcfs,linewidth=1)
         ax.plot(Wo[:,0],Wo[:,1],'--',color=col_lcfs,linewidth=1)
     
-    f.tight_layout()
-    
+    if f is not None:
+        f.tight_layout()
+    else:
+        plt.tight_layout()
+
     return (f, ax, im, cb)
 
