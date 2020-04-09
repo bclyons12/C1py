@@ -6,7 +6,6 @@ Author:       Brendan Carrick Lyons
 Date created: Tue Jan  5 12:04:44 2016
 Date edited:  
 """
-from importlib import reload
 
 from C1py.load_Bmns import load_Bmns
 from C1py.load_Bwall import load_Bwall
