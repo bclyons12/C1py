@@ -15,10 +15,12 @@ import xarray as xr
 import xarray.ufuncs as xru
 from scipy.interpolate import interp1d
 from scipy.interpolate import RectBivariateSpline as RBS
-from geofac import geofac
+from C1py.geofac import geofac
 
-def load_Bmns(folder='./', phasing=0., slice=0, cur_up=1., cur_low=1.,
-              cur_mid=None, machine=None, iplasma=None, code='m3dc1',
+def load_Bmns(folder='./', phasing=0., slice=0, 
+              cur_up=1., cur_low=1., cur_mid=None,
+              probeg_up=False, probeg_low=False, probeg_mid=False,
+              machine=None, iplasma=None, code='m3dc1',
               ntor=None,phase=False,Jmn=False):
     
     if machine is 'diiid':
@@ -61,8 +63,16 @@ def load_Bmns(folder='./', phasing=0., slice=0, cur_up=1., cur_low=1.,
         
         ntor = ds_up.attrs['ntor']
         
-        fac = geofac(machine=machine,ntor=ntor)            
+        if probeg_up:
+            fac = 2.
+        else:
+            fac = geofac(machine=machine,ntor=ntor)  
         cur_up  = fac*cur_up
+        
+        if probeg_low:
+            fac = 2.
+        else:
+            fac = geofac(machine=machine,ntor=ntor)
         cur_low = fac*cur_low
 
         m    = ds_up.m
@@ -83,6 +93,10 @@ def load_Bmns(folder='./', phasing=0., slice=0, cur_up=1., cur_low=1.,
             else:
                 file_mid = folder+'/bmn_middle-'+str(slice)+'.cdf'
             ds_mid = xr.open_dataset(file_mid)
+            if probeg_mid:
+                fac = 2.
+            else:
+                fac = geofac(machine=machine,ntor=ntor)
             cur_mid = fac*cur_mid
             Bmid = ds_mid.bmn_real.data + 1j*ds_mid.bmn_imag.data
             
@@ -205,16 +219,16 @@ def load_Bmns(folder='./', phasing=0., slice=0, cur_up=1., cur_low=1.,
     
     
     cur = xr.DataArray(np.cos(pi*phasing/180.) + conv*1j*np.sin(pi*phasing/180.),
-                             {'phasing':phasing})
+                       coords=[('phasing',phasing)])
     
-    Bmn_up  = cur_up*xr.DataArray(Bup,[('Psi',Psi),('m',m)])
-    Bmn_low = cur_low*xr.DataArray(Blow,[('Psi',Psi),('m',m)]) 
+    Bmn_up  = cur_up*xr.DataArray(Bup,coords=[('Psi',Psi),('m',m)])
+    Bmn_low = cur_low*xr.DataArray(Blow,coords=[('Psi',Psi),('m',m)]) 
     Bmn = cur*Bmn_up + Bmn_low
     
     if cur_mid is not None:
         cur2 = xr.DataArray(np.cos(pi*phasing/180.) + conv*1j*np.sin(pi*phasing/180.),
-                             {'phasing2':phasing})
-        Bmn_mid = cur_mid*xr.DataArray(Bmid,[('Psi',Psi),('m',m)])
+                            coords=[('phasing2',phasing)])
+        Bmn_mid = cur_mid*xr.DataArray(Bmid,coords=[('Psi',Psi),('m',m)])
         Bmn = Bmn + cur2*Bmn_mid
     
     if phase:
@@ -222,7 +236,7 @@ def load_Bmns(folder='./', phasing=0., slice=0, cur_up=1., cur_low=1.,
     else:
         Bmn = np.abs(Bmn)     
     
-    q = xr.DataArray(q,[('Psi',Psi)])
+    q = xr.DataArray(q,coords=[('Psi',Psi)])
         
     if Jmn:
         Bmns = xr.Dataset({'Jmn':Bmn,'q':q})

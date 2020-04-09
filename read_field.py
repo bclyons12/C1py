@@ -18,7 +18,7 @@ import scipy.constants as spc
 def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
                rrange=None, zrange=None, linfac=1., iabs=None, iphase=None,
                isum=None, iavg=None, idiff=None,ilinear=None, iequil=None, 
-               icomplex=None, ntor=None):
+               icomplex=None, ntor=None,nimrod=False):
     
     # Redefine zero options to None for convenience
     if iabs==0:
@@ -40,7 +40,7 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
     
     if (isum is not None) or (iavg is not None) or (idiff is not None):
         
-        if isinstance(filename,basestring):
+        if isinstance(filename,str):
             filename = [filename]
         if isinstance(slice,int):
             slice = [slice]
@@ -98,7 +98,7 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
             return field
             
     else:
-        if not isinstance(filename,basestring):
+        if not isinstance(filename,str):
             print('Warning:  Only considering first filename')
             filename = filename[0]
         if  hasattr(slice,"__len__"):
@@ -111,8 +111,15 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
             print('Warning:  Only considering first phi')
             phi = phi[0]
             
-        
-    
+    if nimrod:
+        #filename is actually a folder
+        R = np.loadtxt(filename+'/r.txt')
+        Z = np.loadtxt(filename+'/z.txt')
+        data = np.loadtxt(filename+'/'+name+('%d'%slice).zfill(5)+'.txt')
+        data = np.transpose(np.nan_to_num(data))
+        field = xr.DataArray(data,coords=[('Z',Z),('R',R)])
+        return field
+
     # initialize the M3D-C1 file
     isrc = fio_py.open_source(fio_py.FIO_M3DC1_SOURCE,filename)
     fio_py.get_options(isrc)
@@ -132,7 +139,6 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
         rrange = [0.75,2.5]      # I want to read this from the file somehow
     if zrange is None:
         zrange = [-1.5,1.5]  # I want to read this from the file somehow
-
         
     R = np.linspace(rrange[0],rrange[1],points)
     Z = np.linspace(zrange[0],zrange[1],points)
@@ -194,34 +200,34 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
     # Primitive scalar fields
     if name_lc in total_pressure:
 
-        field = xr.DataArray(data,[('R',R),('Z',Z)])
+        field = xr.DataArray(data,coords=[('R',R),('Z',Z)])
         field.attrs['type']    = fio_py.FIO_TOTAL_PRESSURE
         field.name = total_pressure[0]
     
     elif name_lc in ion_pressure:
 
-        field = xr.DataArray(data,[('R',R),('Z',Z)])
+        field = xr.DataArray(data,coords=[('R',R),('Z',Z)])
         field.attrs['species'] = fio_py.FIO_MAIN_ION
         field.attrs['type']    = fio_py.FIO_PRESSURE
         field.name = ion_pressure[0]
 
     elif name_lc in ion_density:
 
-        field = xr.DataArray(data,[('R',R),('Z',Z)])
+        field = xr.DataArray(data,coords=[('R',R),('Z',Z)])
         field.attrs['species'] = fio_py.FIO_MAIN_ION
         field.attrs['type']    = fio_py.FIO_DENSITY
         field.name = ion_density[0]
 
     elif name_lc in electron_pressure:
 
-        field = xr.DataArray(data,[('R',R),('Z',Z)])
+        field = xr.DataArray(data,coords=[('R',R),('Z',Z)])
         field.attrs['species'] = fio_py.FIO_ELECTRON
         field.attrs['type']    = fio_py.FIO_PRESSURE
         field.name = electron_pressure[0]
         
     elif name_lc in electron_density:
 
-        field = xr.DataArray(data,[('R',R),('Z',Z)])
+        field = xr.DataArray(data,coords=[('R',R),('Z',Z)])
         field.attrs['species'] = fio_py.FIO_ELECTRON
         field.attrs['type']    = fio_py.FIO_DENSITY
         field.name = electron_density[0]
@@ -231,7 +237,7 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
 
         data = np.array([data,data,data]) 
         
-        field = xr.DataArray(data,[('component',comps),('R',R),('Z',Z)])    
+        field = xr.DataArray(data,coords=[('component',comps),('R',R),('Z',Z)])    
         field.attrs['type'] = fio_py.FIO_MAGNETIC_FIELD
         field.name = magnetic_field[0]
 
@@ -239,7 +245,7 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
         
         data = np.array([data,data,data]) 
         
-        field = xr.DataArray(data,[('component',comps),('R',R),('Z',Z)])  
+        field = xr.DataArray(data,coords=[('component',comps),('R',R),('Z',Z)])  
         field.attrs['type'] = fio_py.FIO_CURRENT_DENSITY
         field.name = current_density[0]
     
@@ -247,7 +253,7 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
         
         data = np.array([data,data,data])
         
-        field = xr.DataArray(data,[('component',comps),('R',R),('Z',Z)])    
+        field = xr.DataArray(data,coords=[('component',comps),('R',R),('Z',Z)])    
         field.attrs['type'] = fio_py.FIO_ELECTRIC_FIELD
         field.name = electric_field[0]
         
@@ -255,7 +261,7 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
         
         data = np.array([data,data,data])
         
-        field = xr.DataArray(data,[('component',comps),('R',R),('Z',Z)])    
+        field = xr.DataArray(data,coords=[('component',comps),('R',R),('Z',Z)])    
         field.attrs['type'] = fio_py.FIO_FLUID_VELOCITY
         field.name = fluid_velocity[0]
         
@@ -263,7 +269,7 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
         
         data = np.array([data,data,data])
         
-        field = xr.DataArray(data,[('component',comps),('R',R),('Z',Z)])    
+        field = xr.DataArray(data,coords=[('component',comps),('R',R),('Z',Z)])    
         field.attrs['type'] = fio_py.FIO_VECTOR_POTENTIAL
         field.name = vector_potential[0]
                 
@@ -315,13 +321,13 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
                       
     # Composite fields
     elif name_lc == 'zero':
-        field = xr.DataArray(data,[('R',R),('Z',Z)])
+        field = xr.DataArray(data,coords=[('R',R),('Z',Z)])
         field.attrs['type'] = 'composite'
         field.name = name_lc
         
     elif name_lc in major_radius:
         
-        field = xr.DataArray(data,[('R',R),('Z',Z)])
+        field = xr.DataArray(data,coords=[('R',R),('Z',Z)])
         
         for j in range(points):
 
@@ -528,20 +534,21 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
         field.name = name_lc
         
     else:
-        print "Field '" + name_lc + "' is+- not defined"
+        print("Field '" + name_lc + "' is not defined")
         return None
         
     field.attrs['ntor'] = ntor
     
     #**************************************************************************
     
-    if not isinstance(field.attrs['type'],basestring):
+    if not isinstance(field.attrs['type'],str):
         
         if 'species' in field.attrs:
             fio_py.set_int_option(fio_py.FIO_SPECIES, field.attrs['species'])
     
         handle = fio_py.get_field(isrc,field.attrs['type'])
-        
+        hint = fio_py.allocate_hint(isrc)
+
         if len(field.shape) == 2:
             enum = np.ndenumerate(field)
             eval_field = fio_py.eval_scalar_field
@@ -555,12 +562,12 @@ def read_field(name, slice=0, filename='C1.h5', points=200, phi=0.,
     
             x = (R[i], phi*np.pi/180., Z[j])
             
-            val = np.asarray(eval_field(handle, x),dtype=dtype)
+            val = np.asarray(eval_field(handle, x, hint),dtype=dtype)
             
             # Imaginary part
             if icomplex is not None:
                 y = (x[0], x[1] + 3.0*np.pi/(2.0*ntor), x[2])
-                val += 1j*np.asarray(eval_field(handle, y),dtype=dtype)
+                val += 1j*np.asarray(eval_field(handle, y, hint),dtype=dtype)
             
             field[dict(R=i,Z=j)] = val
     
