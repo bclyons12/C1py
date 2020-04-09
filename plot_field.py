@@ -14,8 +14,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import fio_py
-from read_field import read_field
-from get_wall import get_wall
+from C1py.read_field import read_field
+from C1py.get_wall import get_wall
 import seaborn as sns
 sns.set_style('white')
 
@@ -27,7 +27,7 @@ def plot_field(field,filename='C1.h5', points=200,  slice=0,
                title=None,fs=1.0,ax=None,symrange=False,cb_label=None,
                minval=None, maxval=None, nimrod=False,make_cb=True):
 
-    if isinstance(field,basestring):
+    if isinstance(field,str):
         # Read this field
         if title is None:
             title = field
@@ -53,7 +53,6 @@ def plot_field(field,filename='C1.h5', points=200,  slice=0,
         vmin = minval
     if maxval is not None:
         vmax = maxval
-    print vmin,vmax
 
     if palette is None:
         if vmin >= 0.:
@@ -107,7 +106,7 @@ def plot_field(field,filename='C1.h5', points=200,  slice=0,
         cb = None
 
     if lcfs is not None:
-        if not isinstance(filename,basestring):
+        if not isinstance(filename,str):
             filename = filename[0]
             
         isrc = fio_py.open_source(fio_py.FIO_M3DC1_SOURCE,filename)

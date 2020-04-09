@@ -9,8 +9,8 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import fio_py
-from read_field import read_field
-from get_wall import get_wall
+from C1py.read_field import read_field
+from C1py.get_wall import get_wall
 import seaborn as sns
 
 def plot_shape(folder='./', rrange=None, zrange=None, bound=False, ax=None,
@@ -23,7 +23,7 @@ def plot_shape(folder='./', rrange=None, zrange=None, bound=False, ax=None,
     else:
         f = None
     
-    if isinstance(folder,basestring):
+    if isinstance(folder,str):
            folder = [folder]
         
     Nf = len(folder)

@@ -10,13 +10,19 @@ Date edited:
 import numpy as np
 import xarray as xr
 from numpy import pi
-from geofac import geofac
+from C1py.geofac import geofac
 
-def load_Bres(folder='./',slice=0,phasing=0.,machine='diiid',cur_up=1.,
-               cur_low=1.,cur_mid=None,ntor=None,phase=False):
-                   
-    fup  = folder+'/Bres_upper-'+str(slice)+'.txt'
-    flow = folder+'/Bres_lower-'+str(slice)+'.txt'    
+def load_Bres(folder='./', slice=0, phasing=0., machine='diiid',
+              cur_up=1., cur_low=1., cur_mid=None,
+              probeg_up=False, probeg_low=False, probeg_mid=False,
+              ntor=None,phase=False,Jres=False):
+    
+    if Jres:
+        fup  = folder+'/Jres_upper-'+str(slice)+'.txt'
+        flow = folder+'/Jres_lower-'+str(slice)+'.txt'
+    else:
+        fup  = folder+'/Bres_upper-'+str(slice)+'.txt'
+        flow = folder+'/Bres_lower-'+str(slice)+'.txt'    
     
     if machine is 'diiid':
         conv = 1.0
@@ -25,13 +31,19 @@ def load_Bres(folder='./',slice=0,phasing=0.,machine='diiid',cur_up=1.,
     elif machine is 'kstar':
         conv = 1.0
         
-    fac = geofac(machine=machine,ntor=ntor)
-    
-#    print fac
-        
+    if probeg_up:
+        fac = 2.
+    else:
+        fac = geofac(machine=machine,ntor=ntor)            
     cur_up  = fac*cur_up
-    cur_low = fac*cur_low
         
+    if probeg_low:
+        fac = 2.
+    else:
+        fac = geofac(machine=machine,ntor=ntor)
+    cur_low = fac*cur_low
+
+    
     A_up   = np.loadtxt(fup)
     m      = A_up[:,0]
     mag_up = A_up[:,1]
@@ -46,29 +58,37 @@ def load_Bres(folder='./',slice=0,phasing=0.,machine='diiid',cur_up=1.,
     Brl     = mag_low*(np.cos(ph_low) + 1j*np.sin(ph_low))
     
     cur  = xr.DataArray(np.cos(pi*phasing/180.)+conv*1j*np.sin(pi*phasing/180.),
-                             {'phasing':phasing})
+                        coords=[('phasing',phasing)])
                              
-    Bres_up  = cur_up*xr.DataArray(Bru,[('Psi',Psi)])
-    Bres_low = cur_low*xr.DataArray(Brl,[('Psi',Psi)])
+    Bres_up  = cur_up*xr.DataArray(Bru,coords=[('Psi',Psi)])
+    Bres_low = cur_low*xr.DataArray(Brl,coords=[('Psi',Psi)])
     Bres = cur*Bres_up + Bres_low
     
     if cur_mid is not None:
         
+        if probeg_mid:
+            fac = 2.
+        else:
+            fac = geofac(machine=machine,ntor=ntor)
         cur_mid = fac*cur_mid
-        fmid = folder+'/Bres_middle-'+str(slice)+'.txt'
+        
+        if Jres:
+            fmid = folder+'/Jres_middle-'+str(slice)+'.txt'
+        else:
+            fmid = folder+'/Bres_middle-'+str(slice)+'.txt'
         A_mid   = np.loadtxt(fmid)
         mag_mid = A_mid[:,1]
         ph_mid  = A_mid[:,2]
         Brm     = mag_mid*(np.cos(ph_mid) + 1j*np.sin(ph_mid))
         cur2 = xr.DataArray(np.cos(pi*phasing/180.)+conv*1j*np.sin(pi*phasing/180.),
-                            {'phasing2':phasing})
-        Bres_mid = cur_mid*xr.DataArray(Brm,[('Psi',Psi)])
+                            coords=[('phasing2',phasing)])
+        Bres_mid = cur_mid*xr.DataArray(Brm,coords=[('Psi',Psi)])
         Bres = Bres + cur2*Bres_mid
     
     if phase:
         Bres.data = np.angle(Bres.data,deg=True) % 360.
     else:
         Bres.data = np.abs(Bres.data)
-    q = xr.DataArray(q,[('Psi',Psi)])
+    q = xr.DataArray(q,coords=[('Psi',Psi)])
     
     return (Bres, q)

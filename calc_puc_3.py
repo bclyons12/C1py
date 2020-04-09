@@ -13,7 +13,7 @@ import xarray as xr
 from numpy import pi
 from C1py.geofac import geofac
 
-def calc_puc(hfs='hfs.txt', lfs='lfs.txt', phasing=0., cur_up=1., cur_low=1.,
+def calc_puc_3(hfsa='hfsa.txt', hfsb='hfsb.txt', lfs='lfs.txt', phasing=0., cur_up=1., cur_low=1.,
               machine=None, field=None,  ntor=None):
                   
     if machine is 'diiid':
@@ -30,12 +30,19 @@ def calc_puc(hfs='hfs.txt', lfs='lfs.txt', phasing=0., cur_up=1., cur_low=1.,
     cur_low = fac*cur_low
     
         
-    dBz    = np.loadtxt(hfs)
-    dBh    = dBz[:,0] + 1j*dBz[:,1]
-    dBh_tu = dBh[0]
-    dBh_tl = dBh[1]
-    dBh_vu = dBh[2]
-    dBh_vl = dBh[3]
+    dBz    = np.loadtxt(hfsa)
+    dBha    = dBz[:,0] + 1j*dBz[:,1]
+    dBha_tu = dBha[0]
+    dBha_tl = dBha[1]
+    dBha_vu = dBha[2]
+    dBha_vl = dBha[3]
+    
+    dBz    = np.loadtxt(hfsb)
+    dBhb    = dBz[:,0] + 1j*dBz[:,1]
+    dBhb_tu = dBhb[0]
+    dBhb_tl = dBhb[1]
+    dBhb_vu = dBhb[2]
+    dBhb_vl = dBhb[3]
     
     dBz    = np.loadtxt(lfs)
     dBl    = dBz[:,0] + 1j*dBz[:,1]
@@ -45,20 +52,23 @@ def calc_puc(hfs='hfs.txt', lfs='lfs.txt', phasing=0., cur_up=1., cur_low=1.,
     dBl_vl = dBl[3]
     
     cur = xr.DataArray(np.cos(pi*phasing/180.)+conv*1j*np.sin(pi*phasing/180.),
-                             coords=[('phasing',phasing)])
+                       coords=[('phasing',phasing)])
                              
     if   field == 0:
-        dBl = cur*cur_up*dBl_vu + cur_low*dBl_vl
-        dBh = cur*cur_up*dBh_vu + cur_low*dBh_vl
+        dBl = cur*cur_up*dBl_vu   + cur_low*dBl_vl
+        dBha = cur*cur_up*dBha_vu + cur_low*dBha_vl
+        dBhb = cur*cur_up*dBhb_vu + cur_low*dBhb_vl
     elif field == 1:
-        dBl = cur*cur_up*(dBl_tu - dBl_vu) + cur_low*(dBl_tl - dBl_vl)
-        dBh = cur*cur_up*(dBh_tu - dBh_vu) + cur_low*(dBh_tl - dBh_vl)
+        dBl = cur*cur_up*(dBl_tu - dBl_vu)    + cur_low*(dBl_tl - dBl_vl)
+        dBha = cur*cur_up*(dBha_tu - dBha_vu) + cur_low*(dBha_tl - dBha_vl)
+        dBhb = cur*cur_up*(dBhb_tu - dBhb_vu) + cur_low*(dBhb_tl - dBhb_vl)
     elif field == 2:
-        dBl = cur*cur_up*dBl_tu + cur_low*dBl_tl
-        dBh = cur*cur_up*dBh_tu + cur_low*dBh_tl
+        dBl = cur*cur_up*dBl_tu   + cur_low*dBl_tl
+        dBha = cur*cur_up*dBha_tu + cur_low*dBha_tl
+        dBhb = cur*cur_up*dBhb_tu + cur_low*dBhb_tl
     else:
         print("Error: field = " + str(field) + " unacceptable")
         return None
         
     
-    return (dBh, dBl)
+    return (dBha, dBhb, dBl)

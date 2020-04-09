@@ -9,12 +9,13 @@ Created on Thu Sep 28 16:14:55 2017
 import numpy as np
 import xarray as xr
 from numpy import pi
-from geofac import geofac
-from calc_puc import calc_puc
+from C1py.geofac import geofac
+from C1py.calc_puc import calc_puc
 
 def calc_puc_multi(hfs=['hfs.txt'], lfs=['lfs.txt'], phasing=0., cur_up=1., cur_low=1.,
              machine=None, field=None,  ntor=None,
              label='time',values=[0]):
+    
     
     dBhs, dBls = calc_puc(hfs=hfs[0], lfs=lfs[0], phasing=phasing,
                           cur_up=cur_up, cur_low=cur_low,

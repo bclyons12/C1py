@@ -9,7 +9,7 @@ Date edited:
 import numpy as np
 import xarray as xr
 from numpy import pi
-from geofac import geofac
+from C1py.geofac import geofac
 
 def load_Bwall(folder='./',slice=0,phasing=0.,machine='diiid',cur_up=1.,
                cur_low=1.,ntor=None):
@@ -23,8 +23,6 @@ def load_Bwall(folder='./',slice=0,phasing=0.,machine='diiid',cur_up=1.,
         
     fac = geofac(machine=machine,ntor=ntor)
     
-#    print fac
-        
     cur_up  = fac*cur_up
     cur_low = fac*cur_low
         
@@ -34,7 +32,7 @@ def load_Bwall(folder='./',slice=0,phasing=0.,machine='diiid',cur_up=1.,
     Bl = A[:,3] + 1j*A[:,4]
     
     cur = xr.DataArray(np.cos(pi*phasing/180.)+conv*1j*np.sin(pi*phasing/180.),
-                             {'phasing':phasing})
+                       coords=[('phasing',phasing)])
                              
     Bwu = cur_up*xr.DataArray(Bu,[('Z',Z)])
     Bwl = cur_low*xr.DataArray(Bl,[('Z',Z)])
