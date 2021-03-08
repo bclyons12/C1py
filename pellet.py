@@ -76,7 +76,7 @@ def plot_resolution(Rp,dY,Np,dist='blend', cf=0.0, fig=None, ax=None):
 def create_plume(D_p=1e-3, L_D = 1.5, v=200., device='diii-d',
                  th_pl = 5., L_pl = 0.2, R_front=None, seed=None,
                  sdist='uniform', tdist='uniform', pdist='sunflower',
-                 N_s=1, species='Ar',
+                 N_s=None, species='Ar',
                  facct=1., sublimate='total',
                  pellet_rate=0., pellet_var=1., pellet_var_tor=0.,
                  cloud_pel=1., pellet_mix=0., cauchy_fraction=0.,
@@ -107,9 +107,9 @@ def create_plume(D_p=1e-3, L_D = 1.5, v=200., device='diii-d',
         R_torus = 6.225
         Z_torus = .55
         a_torus = 1.975
-        R_SPI = 8.3782
+        R_SPI = 8.454232668
         PHI_SPI = 0.
-        Z_SPI = 0.578481
+        Z_SPI = 0.6855
         azi_SPI = 0.
         inc_SPI = 0.
         bend_SPI = 20.
@@ -221,7 +221,7 @@ def create_plume(D_p=1e-3, L_D = 1.5, v=200., device='diii-d',
 
 
 def shatter(D_p=1e-3, L_D = 1.5, v=200., bend=20., device='diii-d',
-            sdist='uniform', N_s=1, species='Ar', seed=None,
+            sdist='uniform', N_s=None, species='Ar', seed=None,
             facct=1., sublimate='total'):
     from scipy.special import kn, erf
     from scipy.interpolate import interp1d
@@ -281,7 +281,10 @@ def shatter(D_p=1e-3, L_D = 1.5, v=200., bend=20., device='diii-d',
         if r==0.:
             continue
         if V + (4./3.)*np.pi*r**3 > Vtot:
-            r = (0.75*(Vtot - V)/np.pi)**(1./3.)
+            if (N_s is not None) and (len(r_s) == N_s):
+                break
+            else:
+                r = (0.75*(Vtot - V)/np.pi)**(1./3.)
         V += (4./3.)*np.pi*r**3
         r_s += [r]
     r_s = np.array(r_s)
