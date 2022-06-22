@@ -79,7 +79,7 @@ def plot_resolution(Rp,dY,Np,dist='blend', cf=0.0, ntor=None, fig=None, ax=None)
 
 def create_plume(D_p=1e-3, L_D = 1.5, v=200., device='diii-d',
                  th_pl = 5., L_pl = 0.2, R_front=None, seed=None,
-                 sdist='uniform', tdist='uniform', pdist='sunflower',
+                 sdist='uniform', tdist='uniform', vspread=None, pdist='sunflower',
                  N_s=None, species='Ar',
                  facct=1., sublimate='total',
                  pellet_rate=0., pellet_var=1., pellet_var_tor=0.,
@@ -107,7 +107,7 @@ def create_plume(D_p=1e-3, L_D = 1.5, v=200., device='diii-d',
         azi_SPI = 0.   # angle of toroidal injection velocity
         inc_SPI = 65.59 # angle of poloidal injection velocity
         bend_SPI = 20.
-    elif device == 'kstar':
+    elif device == 'kstar20':
         R_torus = 1.8
         Z_torus = 0.0
         a_torus = .45
@@ -117,6 +117,16 @@ def create_plume(D_p=1e-3, L_D = 1.5, v=200., device='diii-d',
         azi_SPI = 0.   # angle of toroidal injection velocity
         inc_SPI = -20. # angle of poloidal injection velocity
         bend_SPI = 20.
+    elif device == 'kstar12.5':
+        R_torus = 1.8
+        Z_torus = 0.0
+        a_torus = .45
+        R_SPI = 2.67873  # radial location of injector
+        PHI_SPI = 0.0  # phi location of injector
+        Z_SPI = -0.460905  # height location of injector
+        azi_SPI = 0.   # angle of toroidal injection velocity
+        inc_SPI = -18.4741 # angle of poloidal injection velocity
+        bend_SPI = 12.5
     elif device == 'iter':
         R_torus = 6.225
         Z_torus = .55
@@ -144,9 +154,16 @@ def create_plume(D_p=1e-3, L_D = 1.5, v=200., device='diii-d',
     dist = None
     while dist is None:
         np.random.shuffle(r_s)
-        dist = distribute(r_s, v=v, th_pl=th_pl, L_pl=L_pl,
-                          pdist=pdist, tdist=tdist, angle='rad',debug=debug)
+        dist = distribute(r_s, v=v, th_pl=th_pl, L_pl=L_pl, pdist=pdist,
+                          tdist=tdist, angle='rad',debug=debug)
     t_s, th_s, phi_s = dist
+    
+    if vspread is None:
+        v_s = v
+    elif isinstance(vspread, Number):
+        v_s = v + vspread*(2*np.random.rand(len(r_s)) - 1.0)
+    else:
+        raise ValueError("vspread has invalid value: "+repr(vspread))
 
     def rotate(xpp,ypp,zpp):
         xp = -xpp*np.sin(inc_SPI) - zpp*np.cos(inc_SPI)
@@ -158,9 +175,9 @@ def create_plume(D_p=1e-3, L_D = 1.5, v=200., device='diii-d',
         return x,y,z
 
     # get cartesian velocities (v'')
-    vx_s = v*np.sin(th_s)*np.cos(phi_s)
-    vy_s = v*np.sin(th_s)*np.sin(phi_s)
-    vz_s = v*np.cos(th_s)
+    vx_s = v_s*np.sin(th_s)*np.cos(phi_s)
+    vy_s = v_s*np.sin(th_s)*np.sin(phi_s)
+    vz_s = v_s*np.cos(th_s)
     vx_s,vy_s,vz_s = rotate(vx_s,vy_s,vz_s)
 
     # Advance plume to R_front
@@ -331,7 +348,8 @@ def distribute(r_s, v=200., device='diii-d', th_pl = 5., L_pl = 0.2,
                debug=False):
 
     # time length of plume
-    t_pl = L_pl/v
+    if tdist is not None:
+        t_pl = L_pl/v
 
     if angle == 'deg':
         th_pl *= np.pi/180.
@@ -363,7 +381,9 @@ def distribute(r_s, v=200., device='diii-d', th_pl = 5., L_pl = 0.2,
         np.random.shuffle(ir)
 
     for i,m in enumerate(ms):
-        if tdist == 'uniform':
+        if tdist is None:
+            pass
+        elif tdist == 'uniform':
             ts[i] = t_pl*ir[i]/(N-1)
         elif tdist == 'random':
             ts[i] = t_pl*np.random.rand()
