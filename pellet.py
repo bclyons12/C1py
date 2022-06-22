@@ -8,7 +8,7 @@ try:
 except ModuleNotFoundError:
     pass
 
-def plot_resolution(Rp,dY,Np,dist='blend', cf=0.0, fig=None, ax=None):
+def plot_resolution(Rp,dY,Np,dist='blend', cf=0.0, ntor=None, fig=None, ax=None):
     try:
         sns.set_style('white')
         sns.set_palette('colorblind')
@@ -21,8 +21,9 @@ def plot_resolution(Rp,dY,Np,dist='blend', cf=0.0, fig=None, ax=None):
     th = np.linspace(-np.pi, np.pi, 100001)
     # plot location of uniformly spaced planes
     ps = np.linspace(-np.pi, np.pi, Np+1)
+    ymin = [-1,0][dist!='fourier']
     for p in ps:
-        ax.plot([p,p], [0,1], 'k--', lw=1)
+        ax.plot([p,p], [ymin,1], 'k--', lw=1)
     ax.plot([-np.pi,np.pi], [0,0], 'k', lw=1)
 
     # plot the von Mises distribution through the center of the pellet
@@ -48,6 +49,9 @@ def plot_resolution(Rp,dY,Np,dist='blend', cf=0.0, fig=None, ax=None):
         sf = np.trapz(f,th)
         f /= sf
         dfdt = ((1.-cf)*dfvdt + cf*dfcdt)/sf
+    elif dist == 'fourier':
+        f = np.cos(ntor*th)
+        dfdt = -ntor*np.sin(ntor*th)
 
 
     ax.plot(th, f, lw=3)
@@ -57,7 +61,7 @@ def plot_resolution(Rp,dY,Np,dist='blend', cf=0.0, fig=None, ax=None):
     dfpdt = interp1d(th, dfdt)(ps)
     fi = CubicHermiteSpline(ps, fp, dfpdt)(th)
 
-    if np.any(fi<0):
+    if dist!='fourier' and np.any(fi<0):
        print("Warning: interpolated pellet distribution goes negative: %.2e"%fi.min())
 
     ax.plot(th, fi, lw=3)
@@ -101,7 +105,17 @@ def create_plume(D_p=1e-3, L_D = 1.5, v=200., device='diii-d',
         PHI_SPI = 0.0  # phi location of injector
         Z_SPI = 1.885  # height location of injector
         azi_SPI = 0.   # angle of toroidal injection velocity
-        inc_SPI = 24.41 # angle of poloidal injection velocity
+        inc_SPI = 65.59 # angle of poloidal injection velocity
+        bend_SPI = 20.
+    elif device == 'kstar':
+        R_torus = 1.8
+        Z_torus = 0.0
+        a_torus = .45
+        R_SPI = 2.63818  # radial location of injector
+        PHI_SPI = 0.0  # phi location of injector
+        Z_SPI = -0.45954  # height location of injector
+        azi_SPI = 0.   # angle of toroidal injection velocity
+        inc_SPI = -20. # angle of poloidal injection velocity
         bend_SPI = 20.
     elif device == 'iter':
         R_torus = 6.225
@@ -151,7 +165,7 @@ def create_plume(D_p=1e-3, L_D = 1.5, v=200., device='diii-d',
 
     # Advance plume to R_front
     if R_front is not None:
-        tadv = ((R_SPI-L_pl) - R_front)/(v*np.cos(inc_SPI)*np.cos(azi_SPI))
+        tadv = ((R_SPI-L_pl*np.cos(inc_SPI)*np.cos(azi_SPI))-R_front)/(v*np.cos(inc_SPI)*np.cos(azi_SPI))
         t_s += tadv
 
     X_s = R_SPI*np.cos(PHI_SPI) + vx_s*t_s
@@ -177,7 +191,7 @@ def create_plume(D_p=1e-3, L_D = 1.5, v=200., device='diii-d',
 
         t = np.linspace(0,1,10001)
         if R_front is not None:
-            z = (R_SPI- R_front)*t
+            z = (R_SPI - R_front)*t/(np.cos(inc_SPI)*np.cos(azi_SPI))
         else:
             z = L_pl*t
         x = z*np.tan(th_pl)*np.cos(100*2.*np.pi*t)
@@ -188,14 +202,17 @@ def create_plume(D_p=1e-3, L_D = 1.5, v=200., device='diii-d',
         z += Z_SPI
         ax.plot3D(x,y,z,'b',alpha=0.2)
 
-        ax.set_xlim(R_SPI*np.cos(PHI_SPI) + np.array([-2*L_pl,L_pl]))
+        ax.set_xlim(R_SPI*np.cos(PHI_SPI) + np.array([-L_pl,L_pl]))
         ax.set_xlabel('x')
-        ax.set_ylim(R_SPI*np.sin(PHI_SPI) + np.array([-2*L_pl,L_pl]))
+        ax.set_ylim(R_SPI*np.sin(PHI_SPI) + np.array([-L_pl,L_pl]))
         ax.set_ylabel('Y')
-        ax.set_zlim(Z_SPI + np.array([-1.5*L_pl,1.5*L_pl]))
+        ax.set_zlim(Z_SPI + np.array([-L_pl,L_pl]))
         ax.set_zlabel('Z')
 
-        ax.scatter3D(X_s,Y_s,Z_s,c=r_s,cmap='viridis')
+        if sdist=='uniform':
+            ax.scatter3D(X_s,Y_s,Z_s,c='red')
+        else:
+            ax.scatter3D(X_s,Y_s,Z_s,c=r_s,cmap='viridis')
 
 
     plume = np.zeros((len(r_s),13))
@@ -244,6 +261,12 @@ def shatter(D_p=1e-3, L_D = 1.5, v=200., bend=20., device='diii-d',
         elif species == 'D2':
             v_th = 20.
             C = 2.5
+        else:
+            #species is mol(D)/[mol(D)+mol(Ne)]
+            w_Ne = (1.0-species)*20.1797
+            w_Ne /= (1.0-species)*20.1797 + species*2.014
+            v_th = 8.*w_Ne + 20.*(1.-w_Ne)
+            C = 2.5*(1.0 + w_Ne)
 
         D_cm = D_p*1e2
 
@@ -262,7 +285,7 @@ def shatter(D_p=1e-3, L_D = 1.5, v=200., bend=20., device='diii-d',
         try:
             dp = interp1d(F,d)(x)/1e2
         except ValueError:
-            print('Skipping x=%f, greater than pellet diameter at x=%f'%(x,F[-1]))
+            #print('Skipping x=%f, greater than pellet diameter at x=%f'%(x,F[-1]))
             dp = 0.
 
         return dp/2 # divide by two to get radius
@@ -333,9 +356,15 @@ def distribute(r_s, v=200., device='diii-d', th_pl = 5., L_pl = 0.2,
 
     if seed is not None:
         np.random.seed(seed)
+
+    if tdist == 'uniform':
+        # randomize order
+        ir = np.arange(N)
+        np.random.shuffle(ir)
+
     for i,m in enumerate(ms):
         if tdist == 'uniform':
-            ts[i] = t_pl*i/(N-1)
+            ts[i] = t_pl*ir[i]/(N-1)
         elif tdist == 'random':
             ts[i] = t_pl*np.random.rand()
         elif tdist == 'normal':
