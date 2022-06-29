@@ -15,7 +15,7 @@ import seaborn as sns
 
 def plot_shape(folder='./', rrange=None, zrange=None, bound=False, ax=None,
                legend=True, fs=1.0, Nlvl_in=10, Nlvl_out=1, linewidth=3, 
-               title=None):
+               title=None, labels=None):
     
     if ax is None:
         sns.set_style('white')
@@ -28,7 +28,7 @@ def plot_shape(folder='./', rrange=None, zrange=None, bound=False, ax=None,
         
     Nf = len(folder)
     if Nf <=6:
-        cols = sns.color_palette(n_colors=Nf,palette='colorblind')
+        cols = sns.color_palette(n_colors=6,palette='colorblind')
     else:
         cols = sns.color_palette(n_colors=Nf,palette='inferno')
     
@@ -60,7 +60,7 @@ def plot_shape(folder='./', rrange=None, zrange=None, bound=False, ax=None,
         psi = read_field('psi',slice=-1,filename=fn,rrange=rrange,
                          zrange=zrange)
 
-        col = mpl.colors.rgb2hex(cols[i-1])
+        col = mpl.colors.rgb2hex(cols[i])
         if i==0:
             hold='off'
         else:
@@ -72,13 +72,14 @@ def plot_shape(folder='./', rrange=None, zrange=None, bound=False, ax=None,
         if legend:
             h, = ax.plot([np.inf,np.inf],[np.inf,np.inf],'-',color=col,
                          linewidth=linewidth)
-            
-            h.set_label(folder[i])
-    
+            if labels is None:
+                h.set_label(folder[i])
+            else:
+                h.set_label(labels[i])
     if bound:
         (Wi,Wo) = get_wall()
-        ax.plot(Wi[:,0],Wi[:,1],'r-',linewidth=1)
-        ax.plot(Wo[:,0],Wo[:,1],'r-',linewidth=1)
+        ax.plot(Wi[:,0],Wi[:,1],'k-',linewidth=2)
+        ax.plot(Wo[:,0],Wo[:,1],'k-',linewidth=2)
         
     
     if rrange is None:
@@ -94,7 +95,7 @@ def plot_shape(folder='./', rrange=None, zrange=None, bound=False, ax=None,
     if title is not None:
         ax.set_title(title,fontsize=32*fs)
     if legend:
-        ax.legend(fontsize=24*fs)
+        ax.legend(fontsize=20*fs,loc='upper right')
     if f is not None:
         plt.tight_layout()
     

@@ -12,7 +12,7 @@ def multi_Bres(cases,index,head='./',foot='/',slice=0,phasing=0.,
                machine='diiid',cur_up=1.,cur_low=1.,ntor=None,phase=False,Jres=False):
                   
 
-    key  = index.keys()[0]
+    key  = list(index.keys())[0]
     vals = index[key]                  
 
      
