@@ -121,11 +121,11 @@ def create_plume(D_p=1e-3, L_D = 1.5, v=200., device='diii-d',
         R_torus = 1.8
         Z_torus = 0.0
         a_torus = .45
-        R_SPI = 2.67873  # radial location of injector
-        PHI_SPI = 0.0  # phi location of injector
-        Z_SPI = -0.460905  # height location of injector
+        R_SPI = 2.8626  # radial location of shatter point
+        PHI_SPI = 0.0  # phi location of shatter point
+        Z_SPI = -0.52233  # height location of shatter point
         azi_SPI = 0.   # angle of toroidal injection velocity
-        inc_SPI = -18.4741 # angle of poloidal injection velocity
+        inc_SPI = -17 # angle of poloidal injection velocity (4.5 degree up from injector angle)
         bend_SPI = 12.5
     elif device == 'iter':
         R_torus = 6.225
@@ -182,7 +182,8 @@ def create_plume(D_p=1e-3, L_D = 1.5, v=200., device='diii-d',
 
     # Advance plume to R_front
     if R_front is not None:
-        tadv = ((R_SPI-L_pl*np.cos(inc_SPI)*np.cos(azi_SPI))-R_front)/(v*np.cos(inc_SPI)*np.cos(azi_SPI))
+        tadv = (R_SPI - L_pl*np.cos(inc_SPI)*np.cos(azi_SPI))-R_front
+        tadv /= np.max(v_s)*np.cos(inc_SPI)*np.cos(azi_SPI)
         t_s += tadv
 
     X_s = R_SPI*np.cos(PHI_SPI) + vx_s*t_s
@@ -218,6 +219,12 @@ def create_plume(D_p=1e-3, L_D = 1.5, v=200., device='diii-d',
         y += R_SPI*np.sin(PHI_SPI)
         z += Z_SPI
         ax.plot3D(x,y,z,'b',alpha=0.2)
+
+        if vspread is not None:
+            try:
+                L_pl += (np.max(v_s)) * tadv
+            except NameError:
+                L_pl += (np.max(v_s)) * 1.5e-3
 
         ax.set_xlim(R_SPI*np.cos(PHI_SPI) + np.array([-L_pl,L_pl]))
         ax.set_xlabel('x')
